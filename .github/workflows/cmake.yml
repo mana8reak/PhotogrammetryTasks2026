@@ -54,7 +54,8 @@ jobs:
         shell: pwsh
         run: |
           $OpenCV_DIR = Get-Content .deps/opencv_dir.txt
-          cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DOpenCV_DIR="$OpenCV_DIR"
+          cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DOpenCV_DIR="$OpenCV_DIR" `
+            -DCMAKE_CONFIGURATION_TYPES="Debug;RelWithDebInfo"
 
       - name: Build (any OS)
         run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
