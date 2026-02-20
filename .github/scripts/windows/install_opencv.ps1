@@ -33,16 +33,16 @@ New-Item -ItemType Directory -Force -Path $InstDir  | Out-Null
 Write-Host "Configuring OpenCV..."
 & cmake -S $SrcDir -B $BuildDir -G "Visual Studio 17 2022" -A x64 `
   "-DCMAKE_INSTALL_PREFIX=$InstDir" `
-  "-DCMAKE_CONFIGURATION_TYPES=Debug;RelWithDebInfo" `
+  "-DCMAKE_CONFIGURATION_TYPES=Debug;Release" `
   "-DINSTALL_CREATE_DISTRIB=ON" `
   "-DBUILD_LIST=features2d,highgui,flann,calib3d,imgcodecs" `
   "-DWITH_OPENEXR=ON" `
   "-DBUILD_EXAMPLES=OFF" "-DBUILD_PERF_TESTS=OFF" "-DBUILD_TESTS=OFF" "-DBUILD_DOCS=OFF" `
   "-DWITH_CUDA=OFF"
 
-# Build + install both configs (your project uses RelWithDebInfo in CI)
-Write-Host "Building+Installing OpenCV RelWithDebInfo..."
-& cmake --build $BuildDir --config RelWithDebInfo --target INSTALL
+# Build + install both configs (your project uses Release in CI)
+Write-Host "Building+Installing OpenCV Release..."
+& cmake --build $BuildDir --config Release --target INSTALL
 
 Write-Host "Building+Installing OpenCV Debug..."
 & cmake --build $BuildDir --config Debug --target INSTALL
@@ -54,10 +54,16 @@ if ($null -eq $cfg) { throw "OpenCVConfig.cmake not found under $InstDir" }
 $OpenCV_DIR = $cfg.Directory.FullName
 Set-Content -Path (Join-Path $DepsRoot "opencv_dir.txt") -Value $OpenCV_DIR -Encoding ASCII
 
-# Also store bin path for runtime (opencv_world*.dll)
-$dll = Get-ChildItem -Path $InstDir -Recurse -Filter "opencv_world*.dll" | Select-Object -First 1
-if ($dll) {
-  Set-Content -Path (Join-Path $DepsRoot "opencv_bin.txt") -Value $dll.Directory.FullName -Encoding ASCII
+# Stable bin path for runtime (opencv_world*.dll)
+$ocvBin = Join-Path $InstDir "x64\vc17\bin"
+if (Test-Path $ocvBin) {
+  Set-Content -Path (Join-Path $DepsRoot "opencv_bin.txt") -Value $ocvBin -Encoding ASCII
+} else {
+  # Fallback: search first opencv_world*.dll and use its folder
+  $dll = Get-ChildItem -Path $InstDir -Recurse -Filter "opencv_world*.dll" | Select-Object -First 1
+  if ($dll) {
+    Set-Content -Path (Join-Path $DepsRoot "opencv_bin.txt") -Value $dll.Directory.FullName -Encoding ASCII
+  }
 }
 
 Write-Host "OpenCV_DIR = $OpenCV_DIR"
