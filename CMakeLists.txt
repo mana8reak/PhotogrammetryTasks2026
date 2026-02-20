@@ -15,19 +15,11 @@ else()
     message(FATAL_ERROR "OpenMP not found! You need OpenMP for speedup on multicore CPUs!")
 endif()
 
-find_package(OpenCV 4.5.1 REQUIRED)
+find_package(OpenCV 4.11.0 REQUIRED)
 #      Linux:
-# скачайте Source code (opencv-4.5.1.zip)(для ubuntu 24.04 может быть лучше использовать 4.11.0) отсюда - https://github.com/opencv/opencv/releases распакуйте и скомпилируйте:
-# wget https://github.com/opencv/opencv/archive/4.5.1.zip
-# unzip 4.5.1.zip
-# cd opencv-4.5.1
-# mkdir build
-# cd build
-# cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_LIST=features2d,highgui,flann,calib3d,imgcodecs -DWITH_OPENEXR=ON -DBUILD_EXAMPLES=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=/opt/opencv451  ..
-# make -j12
-# sudo make install
+# sudo .github/scripts/install_opencv_linux.sh
 # укажите для CMake путь к OpenCV:
-# в CLion это делается через File->Settings->Build, Execution, Deployment->CMake->CMake options: -DOpenCV_DIR=/opt/opencv451/lib/cmake/opencv4
+# в CLion это делается через File->Settings->Build, Execution, Deployment->CMake->CMake options: -DOpenCV_DIR=/opt/opencv4.11.0/lib/cmake/opencv4
 # там же сразу стоит добавить в дополнению к Debug сборке - сборку с включенными оптимизациями и отладочными символами - RelWithDebInfo
 #
 #     Windows: (но рекомендуется использовать Linux)
