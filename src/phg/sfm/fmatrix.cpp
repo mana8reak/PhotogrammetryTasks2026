@@ -183,6 +183,41 @@ namespace {
             throw std::runtime_error("estimateFMatrixRANSAC : failed to estimate fundamental matrix");
         }
 
+        std::vector<cv::Vec2d> inliers0;
+        std::vector<cv::Vec2d> inliers1;
+
+        for (int i = 0; i < n_matches; ++i) {
+            if (phg::epipolarTest(m0[i], m1[i], best_F, threshold_px) &&
+                phg::epipolarTest(m1[i], m0[i], best_F.t(), threshold_px))
+            {
+                inliers0.push_back(m0[i]);
+                inliers1.push_back(m1[i]);
+            }
+        }
+
+        if (inliers0.size() >= 8) {
+            cv::Matx33d T0 = getNormalizeTransform(inliers0);
+            cv::Matx33d T1 = getNormalizeTransform(inliers1);
+
+            std::vector<cv::Vec2d> inliers0_t(inliers0.size());
+            std::vector<cv::Vec2d> inliers1_t(inliers1.size());
+
+            for (size_t i = 0; i < inliers0.size(); ++i) {
+                inliers0_t[i] = transformPoint(inliers0[i], T0);
+                inliers1_t[i] = transformPoint(inliers1[i], T1);
+            }
+
+            cv::Matx33d F_refined = estimateFMatrixDLT(
+                inliers0_t.data(),
+                inliers1_t.data(),
+                static_cast<int>(inliers0.size())
+            );
+
+            F_refined = T1.t() * F_refined * T0;
+
+            best_F = F_refined;
+        }
+
         return best_F;
     }
 
