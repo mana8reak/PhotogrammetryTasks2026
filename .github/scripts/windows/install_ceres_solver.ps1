@@ -13,7 +13,7 @@ cd $env:GITHUB_WORKSPACE
 Invoke-WebRequest -Uri "https://github.com/ceres-solver/ceres-solver/archive/2.2.0.zip" -OutFile "2.2.0.zip"
 Expand-Archive -Path "2.2.0.zip" -DestinationPath "."
 cd ceres-solver-2.2.0
-mkdir build | Out-Null
+mkdir build -Force | Out-Null
 cd build
 
 cmake .. `
